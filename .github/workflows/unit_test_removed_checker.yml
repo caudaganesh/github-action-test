@@ -38,4 +38,5 @@ jobs:
             fi 
           done
 
-          echo "with skip = $modified_with_skip"
+          echo "done" 
+          echo $modified_with_skip
