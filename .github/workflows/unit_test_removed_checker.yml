@@ -19,21 +19,11 @@ jobs:
         # Set outputs using the command.
         run: |
           echo "::set-output name=modified_test_files::$(git diff --name-only --diff-filter=MR ${{ github.event.pull_request.base.sha }} ${{ github.sha }} | grep _test.go$ | xargs)"
-          echo "::set-output name=deleted_test_files::$(git diff --name-only --diff-filter=D ${{ github.event.pull_request.base.sha }} ${{ github.sha }} | grep _test.go$ | xargs)"
-
-  check_removed_tests:
-    runs-on: [self-hosted, runner-1]
-    outputs:
-      files: ${{ steps.modified_with_skip.outputs.files }}
-    # require the first job to have ran
-    needs: changed_files
-    # only run there are changed files
-    if: ${{needs.changed_files.outputs.modified_test_files || needs.changed_files.outputs.deleted_test_files }}
-    steps:
+          echo "::set-output name=deleted_test_files::$(git diff --name-only --diff-filter=D ${{ github.event.pull_request.base.sha }} ${{ github.sha }} | grep _test.go$ | xargs)
       - name: echo modified with skip
         id: modified_with_skip
         run: |
-          for file in ${{needs.changed_files.outputs.modified_test_files}}
+          for file in ${{steps.changes.outputs.modified_test_files}}
           do
             echo $file
             echo $(git diff $file | grep 't.Skip(*')
