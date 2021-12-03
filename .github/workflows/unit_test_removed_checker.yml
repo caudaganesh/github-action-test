@@ -4,16 +4,34 @@ on:
     branches: [master]
 
 jobs:
-  test:
-    runs-on: [self-hosted, linux, x64, runner-1]
+  changed_files:
+    runs-on: [self-hosted, runner-1]
+    outputs:
+      modified_test_files: ${{ steps.changes.outputs.modified_test_files }}
+      deleted_test_files: ${{ steps.changes.outputs.deleted_test_files }}
     steps:
-      - name: Set Main Branch Code Coverage
-        id: codecov-main-branch
-        uses: actions/github-script@v3
+      - name: Checkout PR Branch
+        uses: actions/checkout@v2
         with:
-          result-encoding: string
-          script: |
-            const checker = require(`${process.env.GITHUB_WORKSPACE}/.github/scripts/unit_test_remove_checker.js`)
-            return await checker({removed_files: "${{ steps.changed-files.outputs.any_deleted }}"})
+          fetch-depth: 0
+      - name: Get changed files
+        id: changes
+        # Set outputs using the command.
+        run: |
+          echo "::set-output name=modified_test_files::$(git diff --name-only --diff-filter=MR ${{ github.event.pull_request.base.sha }} ${{ github.sha }} | grep _test.go$ | xargs)"
+          echo "::set-output name=deleted_test_files::$(git diff --name-only --diff-filter=D ${{ github.event.pull_request.base.sha }} ${{ github.sha }} | grep _test.go$ | xargs)"
 
-     
+  check_removed_tests:
+    runs-on: [self-hosted, runner-1]
+    # require the first job to have ran
+    needs: changed_files
+    # only run there are changed files
+    if: ${{needs.changed_files.outputs.modified_test_files || needs.changed_files.outputs.deleted_test_files }} 
+    steps:
+      - name: echo deleted tests
+        run: |
+          echo ${{needs.changed_files.outputs.modified_test_files}}
+          for file in ${{needs.changed_files.outputs.deleted_test_files}}
+          do
+            echo file
+          done
