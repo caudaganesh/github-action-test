@@ -34,7 +34,7 @@ jobs:
         run: |
           for file in ${{needs.changed_files.outputs.modified_test_files}}
           do
-            if git diff file | grep 't.Skip(*'; then
+            if git diff $file | grep 't.Skip(*'; then
               ${{ steps.step1.outputs.modified_with_skip }} += file + ", "              
             fi 
           done
