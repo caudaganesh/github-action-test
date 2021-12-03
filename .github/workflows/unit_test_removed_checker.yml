@@ -25,5 +25,5 @@ jobs:
       - name: echo files
         run: |
           echo skipped files ${{steps.changes.outputs.skipped_files}}
-          echo deleted files ${{steps.changes.outputs.skipped_files}}
+          echo deleted files ${{steps.changes.outputs.deleted_files}}
 
