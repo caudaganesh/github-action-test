@@ -20,10 +20,10 @@ jobs:
         id: changes
         # Set outputs using the command.
         run: |
-          echo "::set-output name=modified_test_files::$(git diff --name-only --diff-filter=MR ${{ github.event.pull_request.base.sha }} ${{ github.sha }} | grep _test.go$ | xargs)"
+          echo "::set-output name=modified_test_files::$(git diff --name-only --diff-filter=MRA ${{ github.event.pull_request.base.sha }} ${{ github.sha }} | grep _test.go$ | xargs)"
           echo "::set-output name=deleted_test_files::$(git diff --name-only --diff-filter=D ${{ github.event.pull_request.base.sha }} ${{ github.sha }} | grep _test.go$ | xargs)"
 
-      - name: echo modified with skip
+      - name: get skipped modified tests
         id: modified_with_skip
         run: |
           for file in ${{steps.changes.outputs.modified_test_files}}
@@ -36,5 +36,5 @@ jobs:
 
           echo "done"
 
-      - name: echo modified with skip
+      - name: echo modified with skip test
         run: echo ${{ steps.modified_with_skip.outputs.skipped_files }}
