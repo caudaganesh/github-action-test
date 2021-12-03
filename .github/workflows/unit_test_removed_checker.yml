@@ -29,8 +29,8 @@ jobs:
           for file in ${{steps.changes.outputs.modified_test_files}}
           do
             if echo $(git diff ${{ github.event.pull_request.base.sha }} $file | grep 't.Skip'); then
-            echo $file
-              echo "::set-output name=skipped_files::${{ steps.modified_with_skip.outputs.skipped_files }} $file"
+              echo $file
+              echo "::set-output name=skipped_files::$($file + ${{ steps.modified_with_skip.outputs.skipped_files }})"
             fi
           done
 
