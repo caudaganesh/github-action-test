@@ -35,7 +35,7 @@ jobs:
         run: |
           for file in ${{needs.changed_files.outputs.modified_test_files}}
           do
-            echo file
+            echo $file
           done
 
           echo "done"
