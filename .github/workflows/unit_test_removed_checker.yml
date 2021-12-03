@@ -33,5 +33,5 @@ jobs:
           echo ${{needs.changed_files.outputs.modified_test_files}}
           for file in ${{needs.changed_files.outputs.deleted_test_files}}
           do
-            echo file
+            echo "test $file"
           done
