@@ -31,7 +31,7 @@ jobs:
       - name: echo deleted tests
         run: |
           echo ${{needs.changed_files.outputs.modified_test_files}}
-          for file in ${{needs.changed_files.outputs.deleted_test_files}}
+          for file in ${{needs.changed_files.outputs.modified_test_files}}
           do
             echo "test $file"
           done
