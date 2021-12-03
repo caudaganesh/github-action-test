@@ -1,0 +1,19 @@
+name: Unit Test Removed Checker
+on:
+  pull_request:
+    branches: [master]
+
+jobs:
+  test:
+    runs-on: [self-hosted, linux, x64, runner-1]
+    steps:
+      - name: Set Main Branch Code Coverage
+        id: codecov-main-branch
+        uses: actions/github-script@v3
+        with:
+          result-encoding: string
+          script: |
+            const checker = require(`${process.env.GITHUB_WORKSPACE}/.github/scripts/unit_test_remove_checker.js`)
+            return await checker({removed_files: "${{ steps.changed-files.outputs.any_deleted }}"})
+
+     
