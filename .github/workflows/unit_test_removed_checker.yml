@@ -4,11 +4,11 @@ on:
     branches: [master]
 
 jobs:
-  changed_files:
+  unit_test_file_check:
     runs-on: [self-hosted, runner-1]
     outputs:
       skipped_files: ${{ steps.changes.outputs.skipped_files }}
-      deleted_test_files: ${{ steps.changes.outputs.deleted_test_files }}
+      deleted_files: ${{ steps.changes.outputs.deleted_files }}
     steps:
       - name: Checkout PR Branch
         uses: actions/checkout@v2
@@ -20,8 +20,10 @@ jobs:
         # Set outputs using the command.
         run: |
           echo "::set-output name=skipped_files::$(git diff --name-only --diff-filter=MRA ${{ github.event.pull_request.base.sha }} ${{ github.sha }} -G"t.Skip"| grep _test.go$ | xargs)"
+          echo "::set-output name=deleted_files::$(git diff --name-only --diff-filter=D ${{ github.event.pull_request.base.sha }} ${{ github.sha }} | grep _test.go$ | xargs)"
 
-      - name: echo skipped files
+      - name: echo files
         run: |
-          echo ${{steps.changes.outputs.skipped_files}}
+          echo skipped files ${{steps.changes.outputs.skipped_files}}
+          echo deleted files ${{steps.changes.outputs.skipped_files}}
 
