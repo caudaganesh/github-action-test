@@ -9,6 +9,7 @@ jobs:
     outputs:
       modified_test_files: ${{ steps.changes.outputs.modified_test_files }}
       deleted_test_files: ${{ steps.changes.outputs.deleted_test_files }}
+      skipped_files: ${{ steps.modified_with_skip.outputs.skipped_files }}
     steps:
       - name: Checkout PR Branch
         uses: actions/checkout@v2
@@ -23,10 +24,13 @@ jobs:
       - name: echo modified with skip
         id: modified_with_skip
         run: |
+          f = ""
           for file in ${{steps.changes.outputs.modified_test_files}}
           do
             echo $file
-            echo $(git diff ${{ github.event.pull_request.base.sha }} $file | grep 't.Skip')
+            if $(git diff ${{ github.event.pull_request.base.sha }} $file | grep 't.Skip'); then
+              f += $file + ","
+            fi
           done
 
           echo "done"
