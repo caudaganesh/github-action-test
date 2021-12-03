@@ -6,12 +6,9 @@ on:
 jobs:
   changed_files:
     runs-on: [self-hosted, runner-1]
-    env:
-      SKIPPED_FILES: ""
     outputs:
-      modified_test_files: ${{ steps.changes.outputs.modified_test_files }}
+      skipped_files: ${{ steps.changes.outputs.skipped_files }}
       deleted_test_files: ${{ steps.changes.outputs.deleted_test_files }}
-      skipped_files: ${{ steps.modified_with_skip.outputs.skipped_files }}
     steps:
       - name: Checkout PR Branch
         uses: actions/checkout@v2
@@ -22,20 +19,9 @@ jobs:
         id: changes
         # Set outputs using the command.
         run: |
-          echo "::set-output name=modified_test_files::$(git diff --name-only --diff-filter=MRA ${{ github.event.pull_request.base.sha }} ${{ github.sha }} | grep _test.go$ | xargs)"
-          echo "::set-output name=deleted_test_files::$(git diff --name-only --diff-filter=D ${{ github.event.pull_request.base.sha }} ${{ github.sha }} | grep _test.go$ | xargs)"
+          echo "::set-output name=skipped_files::$(git diff --name-only --diff-filter=MRA ${{ github.event.pull_request.base.sha }} ${{ github.sha }} -G="t.Skip"| grep _test.go$ | xargs)"
 
-      - name: get skipped modified tests
-        id: modified_with_skip
+      - name: echo skipped files
         run: |
-          for file in ${{steps.changes.outputs.modified_test_files}}
-          do
-            if echo $(git diff ${{ github.event.pull_request.base.sha }} $file | grep 't.Skip'); then
-              echo "SKIPPED_FILES=${{env.SKIPPED_FILES}} + $file "  >> $GITHUB_ENV
-            fi
-          done
-          echo "done"
-        shell: bash
+          echo ${{steps.changes.outputs.skipped_files}}
 
-      - name: echo modified with skip test
-        run: echo ${{env.SKIPPED_FILES}}
