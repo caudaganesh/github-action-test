@@ -6,6 +6,8 @@ on:
 jobs:
   changed_files:
     runs-on: [self-hosted, runner-1]
+    env:
+      SKIPPED_FILES: ""
     outputs:
       modified_test_files: ${{ steps.changes.outputs.modified_test_files }}
       deleted_test_files: ${{ steps.changes.outputs.deleted_test_files }}
@@ -29,13 +31,11 @@ jobs:
           for file in ${{steps.changes.outputs.modified_test_files}}
           do
             if echo $(git diff ${{ github.event.pull_request.base.sha }} $file | grep 't.Skip'); then
-              echo $file
-              f += $file + ", "
+              echo "SKIPPED_FILES=${{env.SKIPPED_FILES}} + $file "  >> $GITHUB_ENV
             fi
           done
-          echo "::set-output name=skipped_files::$f"
           echo "done"
         shell: bash
 
       - name: echo modified with skip test
-        run: echo ${{ steps.modified_with_skip.outputs.skipped_files }}
+        run: echo ${{env.SKIPPED_FILES}}
