@@ -19,7 +19,7 @@ jobs:
         id: changes
         # Set outputs using the command.
         run: |
-          echo "::set-output name=skipped_files::$(git diff --name-only --diff-filter=MRA ${{ github.event.pull_request.base.sha }} ${{ github.sha }} -G="t.Skip"| grep _test.go$ | xargs)"
+          echo "::set-output name=skipped_files::$(git diff --name-only --diff-filter=MRA ${{ github.event.pull_request.base.sha }} ${{ github.sha }} -G"t.Skip"| grep _test.go$ | xargs)"
 
       - name: echo skipped files
         run: |
