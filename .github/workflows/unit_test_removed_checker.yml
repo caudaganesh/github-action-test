@@ -30,8 +30,12 @@ jobs:
     steps:
       - name: echo deleted tests
         run: |
-          echo ${{needs.changed_files.outputs.modified_test_files}}
+          modified_with_skip = ""
           for file in ${{needs.changed_files.outputs.modified_test_files}}
           do
-            echo "test $file"
+            if git diff file | grep 't.Skip(*'; then
+              modified_with_skip += file + ","              
+            fi 
           done
+
+          echo "with skip = $modified_with_skip"
