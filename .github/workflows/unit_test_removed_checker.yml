@@ -23,20 +23,21 @@ jobs:
 
   check_removed_tests:
     runs-on: [self-hosted, runner-1]
+    outputs:
+      modified_with_skip: ${{ steps.step1.outputs.modified_with_skip }}
     # require the first job to have ran
     needs: changed_files
     # only run there are changed files
-    if: ${{needs.changed_files.outputs.modified_test_files || needs.changed_files.outputs.deleted_test_files }} 
+    if: ${{needs.changed_files.outputs.modified_test_files || needs.changed_files.outputs.deleted_test_files }}
     steps:
-      - name: echo deleted tests
+      - name: echo modified with skip
         run: |
-          modified_with_skip = ""
           for file in ${{needs.changed_files.outputs.modified_test_files}}
           do
             if git diff file | grep 't.Skip(*'; then
-              modified_with_skip += file + ","              
+              ${{ steps.step1.outputs.modified_with_skip }} += file + ", "              
             fi 
           done
 
           echo "done" 
-          echo $modified_with_skip
+          echo ${{ steps.step1.outputs.modified_with_skip }}
