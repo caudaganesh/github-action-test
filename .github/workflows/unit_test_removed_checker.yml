@@ -33,3 +33,4 @@ jobs:
         run: |
           echo skipped files ${{steps.changes.outputs.skipped_files}}
           echo deleted files ${{steps.changes.outputs.deleted_files}}
+          echo The Title of your PR is ${{ github.event.pull_request.title }}
