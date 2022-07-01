@@ -2,6 +2,8 @@ name: Unit Test File Checker
 on:
   pull_request:
     branches: [master]
+env:
+  HOME: "/home/runner/test/_work/"
 
 jobs:
   checking_file:
