@@ -5,7 +5,7 @@ on:
 
 jobs:
   checking_file:
-    runs-on: [self-hosted, runner-1, runner-2]
+    runs-on: [self-hosted, runner-1]
     outputs:
       skipped_files: ${{ steps.changes.outputs.skipped_files }}
       deleted_files: ${{ steps.changes.outputs.deleted_files }}
