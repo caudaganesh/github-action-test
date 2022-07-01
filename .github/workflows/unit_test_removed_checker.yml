@@ -1,19 +1,36 @@
-name: Unit Test Removed Checker
+name: Unit Test File Checker
 on:
   pull_request:
     branches: [master]
+env:
+  HOME: "/home/runner/test/_work/"
 
 jobs:
-  test:
-    runs-on: [self-hosted, linux, x64, runner-1]
+  checking_file:
+    runs-on: [self-hosted, runner-1]
+    outputs:
+      skipped_files: ${{ steps.changes.outputs.skipped_files }}
+      deleted_files: ${{ steps.changes.outputs.deleted_files }}
     steps:
-      - name: Set Main Branch Code Coverage
-        id: codecov-main-branch
-        uses: actions/github-script@v3
+      - name: Configure git for private modules
+        env:
+          TOKEN: ${{ secrets.TOKEN }}
+          USER_NAME: caudaganesh
+        run: git config --global url."https://${USER_NAME}:${TOKEN}@github.com".insteadOf "https://github.com"
+      - name: Checkout PR Branch
+        uses: actions/checkout@v2
         with:
-          result-encoding: string
-          script: |
-            const checker = require(`${process.env.GITHUB_WORKSPACE}/.github/scripts/unit_test_remove_checker.js`)
-            return await checker({removed_files: "${{ steps.changed-files.outputs.any_deleted }}"})
+          fetch-depth: 0
 
-     
+      - name: Get changed files
+        id: changes
+        # Set outputs using the command.
+        run: |
+          echo "::set-output name=skipped_files::$(git diff --name-only --diff-filter=MRA ${{ github.event.pull_request.base.sha }} ${{ github.sha }} -G"t.Skip"| grep _test.go$ | xargs)"
+          echo "::set-output name=deleted_files::$(git diff --name-only --diff-filter=D ${{ github.event.pull_request.base.sha }} ${{ github.sha }} | grep _test.go$ | xargs)"
+
+      - name: echo files
+        run: |
+          echo skipped files ${{steps.changes.outputs.skipped_files}}
+          echo deleted files ${{steps.changes.outputs.deleted_files}}
+          echo The Title of your PR is ${{ github.event.pull_request.title }}
