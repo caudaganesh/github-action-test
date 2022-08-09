@@ -1,0 +1,26 @@
+name: Mutation Testing
+env:
+  HOME: '/home/runner/caudaganesh_test/_work/'
+  GOPRIVATE: 'github.com/tokopedia/*'
+  GOPATH: '/home/runner/caudaganesh_test/_work/github-action-test/go'
+  GO111MODULE: on
+
+on:
+  pull_request:
+    branches: [master]
+
+jobs:
+  test:
+    runs-on: [self-hosted, linux]
+    steps:
+      - name: Install Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.14.x
+      - name: Checkout PR Branch
+        uses: actions/checkout@v2
+      - name: Golang mutation testing
+        uses: caudaganesh/go-mutesting-action@v1.0.3
+        with:
+          # targets: main.go entrypoint.go cmd/
+          output: verbose
