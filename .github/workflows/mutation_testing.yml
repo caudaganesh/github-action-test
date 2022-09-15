@@ -1,0 +1,39 @@
+name: Mutation Testing
+env:
+  HOME: '/home/runner/caudaganesh_test/_work/'
+  GOPRIVATE: 'github.com/tokopedia/*'
+  GOPATH: '/home/runner/caudaganesh_test/_work/github-action-test/go'
+  GO111MODULE: on
+
+on:
+  pull_request:
+    branches: [master]
+
+jobs:
+  test:
+    runs-on: [self-hosted, linux]
+    steps:
+      - name: Install Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.14.x
+      - name: Checkout PR Branch
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Get changed files
+        id: changed-files
+        uses: tj-actions/changed-files@v29.0.2
+        with:
+          files: |
+            *.go
+          files_ignore: |
+            *_test.go
+      - name: Golang mutation testing
+        id: go-mutation-testing
+        uses: caudaganesh/go-mutesting-action@v1.0.3
+        with:
+          targets: ${{ steps.changed-files.outputs.all_changed_files }}
+          output: verbose
+      - name: Check on failures
+        run: if [[ ${{ steps.go-mutation-testing.outcome }} == "failure" ]]; then exit 0; else exit 1; fi
